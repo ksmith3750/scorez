@@ -106,7 +106,8 @@ export function NewRoundForm({ courses, players }: Props) {
 
       <button
         type="submit"
-        className="bg-green-700 text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-green-800 transition-colors"
+        disabled={!selectedCourse}
+        className="bg-green-700 text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Save Round
       </button>
