@@ -32,10 +32,12 @@ describe('calculateHandicaps', () => {
     expect(kirk.roundCount).toBe(2)
   })
 
-  it('excludes scores from previous years', () => {
+  it('excludes prior-year scores from the handicap calculation', () => {
     const result = calculateHandicaps(players, rounds, scores)
     const kirk = result.find(h => h.player.id === 'p1')!
-    expect(kirk.roundCount).toBe(2) // r3 is last year, not counted
+    // If r3 (prior year, score 78, +6) were included: (4+2+6)/3 = 4.0
+    // With r3 excluded: (4+2)/2 = 3.0
+    expect(kirk.handicap).toBe(3) // not 4
   })
 
   it('returns null handicap for players with no current-year rounds', () => {
@@ -50,6 +52,16 @@ describe('calculateHandicaps', () => {
     expect(result[0].player.id).toBe('p1') // Kirk: 3
     expect(result[1].player.id).toBe('p2') // Dave: 8
     expect(result[2].player.id).toBe('p3') // Mike: null
+  })
+
+  it('returns empty array when no players provided', () => {
+    const result = calculateHandicaps([], rounds, scores)
+    expect(result).toEqual([])
+  })
+
+  it('returns null handicap for all players when no rounds provided', () => {
+    const result = calculateHandicaps(players, [], [])
+    expect(result.every(h => h.handicap === null && h.roundCount === 0)).toBe(true)
   })
 
   it('rounds handicap to 1 decimal place', () => {

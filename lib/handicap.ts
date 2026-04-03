@@ -9,7 +9,7 @@ export function calculateHandicaps(
 
   const currentYearRoundIds = new Set(
     rounds
-      .filter(r => new Date(r.date).getFullYear() === currentYear)
+      .filter(r => parseInt(r.date.slice(0, 4), 10) === currentYear)
       .map(r => r.id)
   )
 
