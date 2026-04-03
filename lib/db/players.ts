@@ -8,5 +8,5 @@ export async function getPlayers(): Promise<Profile[]> {
     .select('id, name')
     .order('name')
   if (error) throw new Error(`getPlayers: ${error.message}`)
-  return data
+  return data ?? []
 }

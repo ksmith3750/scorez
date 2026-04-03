@@ -15,7 +15,7 @@ export async function getRounds(): Promise<RoundWithScores[]> {
     `)
     .order('date', { ascending: false })
   if (error) throw new Error(`getRounds: ${error.message}`)
-  return data
+  return data ?? []
 }
 
 export async function getRound(id: string): Promise<RoundWithScores> {
@@ -32,7 +32,10 @@ export async function getRound(id: string): Promise<RoundWithScores> {
     `)
     .eq('id', id)
     .single()
-  if (error) throw new Error(`getRound: ${error.message}`)
+  if (error) {
+    if (error.code === 'PGRST116') throw new Error('NOT_FOUND')
+    throw new Error(`getRound: ${error.message}`)
+  }
   return data
 }
 
@@ -62,7 +65,10 @@ export async function createRound(
     const { error: scoresError } = await supabase
       .from('round_scores')
       .insert(scoreRows)
-    if (scoresError) throw new Error(`createRound scores: ${scoresError.message}`)
+    if (scoresError) {
+      await supabase.from('rounds').delete().eq('id', round.id)
+      throw new Error(`createRound scores: ${scoresError.message}`)
+    }
   }
 
   return round.id

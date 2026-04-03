@@ -8,7 +8,7 @@ export async function getCourses(): Promise<Course[]> {
     .select('*')
     .order('name')
   if (error) throw new Error(`getCourses: ${error.message}`)
-  return data
+  return data ?? []
 }
 
 export async function addCourse(
@@ -24,5 +24,5 @@ export async function addCourse(
     .select()
     .single()
   if (error) throw new Error(`addCourse: ${error.message}`)
-  return data
+  return data!
 }
