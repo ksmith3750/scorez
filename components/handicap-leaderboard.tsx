@@ -25,7 +25,7 @@ export function HandicapLeaderboard({ handicaps }: Props) {
             </div>
             <span className={`text-sm font-bold ${entry.handicap !== null ? 'text-green-700' : 'text-slate-300'}`}>
               {entry.handicap !== null
-                ? entry.handicap >= 0 ? `+${entry.handicap}` : `${entry.handicap}`
+                ? entry.handicap >= 0 ? `+${entry.handicap.toFixed(1)}` : `${entry.handicap.toFixed(1)}`
                 : '—'}
             </span>
           </li>
