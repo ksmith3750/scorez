@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Course } from '@/lib/types'
 import { createCourse } from '@/app/actions'
 
@@ -16,29 +16,53 @@ export function AddCourseModal({ onClose, onAdded }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Fix 1 — Escape key closes modal
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
     setLoading(true)
     setError('')
 
+    // Fix 4 — loading reset on success path via finally
+    // Fix 5 — parseInt with radix
     try {
       const course = await createCourse(
         name.trim(),
-        par9 ? parseInt(par9) : null,
-        par18 ? parseInt(par18) : null
+        par9 ? parseInt(par9, 10) : null,
+        par18 ? parseInt(par18, 10) : null
       )
       onAdded(course)
-    } catch {
-      setError('Failed to add course. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create course')
+    } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
-        <h2 className="font-semibold text-slate-900 mb-4">Add New Course</h2>
+    // Fix 1 — backdrop click closes modal
+    <div
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      {/* Fix 1 — stop propagation; Fix 2 — role, aria-modal, aria-labelledby */}
+      <div
+        className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-course-title"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Fix 2 — id on h2 */}
+        <h2 id="add-course-title" className="font-semibold text-slate-900 mb-4">Add New Course</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Course Name</label>

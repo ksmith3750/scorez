@@ -16,6 +16,8 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
   const [open, setOpen] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  // Fix 10 — ref to "+ Add new course" button for focus restoration
+  const addCourseButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -37,10 +39,14 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
     setOpen(false)
   }
 
-  function handleSearchChange(value: string) {
-    setSearch(value)
-    onSelect(null)
+  // Fix 6 — only call onSelect(null) when typed value doesn't match current selection
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value
+    setSearch(val)
     setOpen(true)
+    if (selectedCourse && val !== selectedCourse.name) {
+      onSelect(null)
+    }
   }
 
   function handleCourseAdded(course: Course) {
@@ -49,6 +55,8 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
     )
     handleSelect(course)
     setShowModal(false)
+    // Fix 10 — restore focus to the trigger button after modal closes
+    setTimeout(() => addCourseButtonRef.current?.focus(), 0)
   }
 
   return (
@@ -56,7 +64,7 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
       <input
         type="text"
         value={search}
-        onChange={e => handleSearchChange(e.target.value)}
+        onChange={handleSearchChange}
         onFocus={() => setOpen(true)}
         placeholder="Search courses…"
         className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
@@ -74,10 +82,22 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
           ))}
         </ul>
       )}
+      {/* Fix 7 — "No courses found" empty state */}
+      {open && filtered.length === 0 && (
+        <ul className="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+          <li className="px-3 py-2 text-sm text-slate-400">No courses found</li>
+        </ul>
+      )}
+      {/* Fix 8 — empty initialCourses guidance */}
+      {courses.length === 0 && (
+        <p className="text-xs text-slate-400 mt-1">No courses yet — use &quot;+ Add new course&quot; below to add one.</p>
+      )}
+      {/* Fix 9 — focus ring; Fix 10 — ref */}
       <button
+        ref={addCourseButtonRef}
         type="button"
         onClick={() => setShowModal(true)}
-        className="mt-1 text-sm text-green-700 hover:underline"
+        className="mt-1 text-sm text-green-700 hover:underline focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none rounded"
       >
         + Add new course
       </button>
