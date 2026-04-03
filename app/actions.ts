@@ -14,13 +14,17 @@ export async function submitRound(formData: FormData) {
 
   const courseId = formData.get('course_id') as string
   const date = formData.get('date') as string
-  const holes = parseInt(formData.get('holes') as string) as 9 | 18
+  const holes = parseInt(formData.get('holes') as string)
   const par = parseInt(formData.get('par') as string)
+
+  if (!courseId || !date) throw new Error('Course and date are required')
+  if (holes !== 9 && holes !== 18) throw new Error('Holes must be 9 or 18')
+  if (isNaN(par) || par < 1) throw new Error('Invalid par value')
 
   const scores: { playerId: string; score: number }[] = []
   for (const [key, value] of formData.entries()) {
     if (key.startsWith('score_') && (value as string).trim() !== '') {
-      const playerId = key.replace('score_', '')
+      const playerId = key.slice('score_'.length)
       const score = parseInt(value as string)
       if (!isNaN(score)) {
         scores.push({ playerId, score })
@@ -28,7 +32,7 @@ export async function submitRound(formData: FormData) {
     }
   }
 
-  const roundId = await createRound(courseId, date, holes, par, user.id, scores)
+  const roundId = await createRound(courseId, date, holes as 9 | 18, par, user.id, scores)
   revalidatePath('/')
   revalidatePath('/rounds')
   redirect(`/rounds/${roundId}`)
@@ -43,7 +47,14 @@ export async function createCourse(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const course = await addCourse(name, par9, par18, user.id)
+  if (!name.trim()) throw new Error('Course name is required')
+
+  let course
+  try {
+    course = await addCourse(name.trim(), par9, par18, user.id)
+  } catch {
+    throw new Error('Failed to create course. Please try again.')
+  }
   revalidatePath('/rounds/new')
   return course
 }
