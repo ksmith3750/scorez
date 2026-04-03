@@ -27,12 +27,12 @@ export function RoundsList({ rounds }: Props) {
             className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-semibold text-slate-800">{round.course?.name}</span>
+              <span className="font-semibold text-slate-800">{round.course?.name ?? 'Unknown Course'}</span>
               <span className="text-sm text-slate-400">{formatDate(round.date)}</span>
             </div>
             <div className="text-sm text-slate-500 mb-2">{round.holes} holes · Par {round.par}</div>
             <div className="flex gap-4 flex-wrap">
-              {round.scores
+              {[...round.scores]
                 .sort((a, b) => a.score - b.score)
                 .map(s => (
                   <span key={s.id} className="text-sm text-slate-600">

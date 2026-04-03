@@ -23,7 +23,7 @@ export default async function RoundDetailPage({ params }: Props) {
         ← Back to History
       </Link>
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <h1 className="text-xl font-bold text-slate-900 mb-1">{round.course?.name}</h1>
+        <h1 className="text-xl font-bold text-slate-900 mb-1">{round.course?.name ?? 'Unknown Course'}</h1>
         <p className="text-sm text-slate-500 mb-5">
           {formatDate(round.date)} · {round.holes} holes · Par {round.par}
         </p>
@@ -36,7 +36,7 @@ export default async function RoundDetailPage({ params }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {round.scores
+            {[...round.scores]
               .sort((a, b) => a.score - b.score)
               .map(s => {
                 const diff = s.score - round.par
