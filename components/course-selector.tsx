@@ -29,6 +29,15 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    if (!open) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open])
+
   const filtered = courses.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   )
@@ -84,9 +93,9 @@ export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Pro
       )}
       {/* Fix 7 — "No courses found" empty state */}
       {open && filtered.length === 0 && (
-        <ul className="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-auto">
-          <li className="px-3 py-2 text-sm text-slate-400">No courses found</li>
-        </ul>
+        <div className="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg px-3 py-2">
+          <p role="status" className="text-sm text-slate-400">No courses found</p>
+        </div>
       )}
       {/* Fix 8 — empty initialCourses guidance */}
       {courses.length === 0 && (
