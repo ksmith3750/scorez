@@ -12,7 +12,11 @@ export function Nav() {
 
   async function signOut() {
     const supabase = createClient()
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Sign out failed:', error.message)
+      return
+    }
     router.push('/login')
     router.refresh()
   }
@@ -33,6 +37,7 @@ export function Nav() {
           <Link href="/rounds/new" className={linkClass('/rounds/new')}>New Round</Link>
           <Link href="/rounds" className={linkClass('/rounds')}>History</Link>
           <button
+            type="button"
             onClick={signOut}
             className="text-slate-400 hover:text-slate-700 text-sm"
           >
