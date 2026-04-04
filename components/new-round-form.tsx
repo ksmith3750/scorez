@@ -15,7 +15,14 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
   const [holes, setHoles] = useState<9 | 18>(18)
   const [par, setPar] = useState('')
   const [scores, setScores] = useState<Record<string, string>>({})
-  const [playerList, setPlayerList] = useState<Profile[]>(initialPlayers)
+
+  // allKnownPlayers = every player we know about (DB + newly created this session)
+  const [allKnownPlayers, setAllKnownPlayers] = useState<Profile[]>(initialPlayers)
+  // activePlayerIds = which players are currently on the scorecard
+  const [activePlayerIds, setActivePlayerIds] = useState<Set<string>>(
+    new Set(initialPlayers.map(p => p.id))
+  )
+
   const [addingPlayer, setAddingPlayer] = useState(false)
   const [newPlayerName, setNewPlayerName] = useState('')
   const [addPlayerError, setAddPlayerError] = useState('')
@@ -37,6 +44,37 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
     }
   }
 
+  function removePlayer(id: string) {
+    setActivePlayerIds(prev => {
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+  }
+
+  function addExistingPlayer(player: Profile) {
+    setActivePlayerIds(prev => new Set([...prev, player.id]))
+  }
+
+  async function handleAddNewPlayer() {
+    const name = newPlayerName.trim()
+    if (!name) return
+    setAddingPlayerLoading(true)
+    setAddPlayerError('')
+    try {
+      const player = await addPlayerAction(name)
+      setAllKnownPlayers(prev =>
+        [...prev, player].sort((a, b) => a.name.localeCompare(b.name))
+      )
+      setActivePlayerIds(prev => new Set([...prev, player.id]))
+      setNewPlayerName('')
+    } catch (err) {
+      setAddPlayerError(err instanceof Error ? err.message : 'Failed to add player')
+    } finally {
+      setAddingPlayerLoading(false)
+    }
+  }
+
   const parNum = parseInt(par, 10)
 
   function calcDiff(scoreStr: string): number | null {
@@ -51,24 +89,8 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
     return d > 0 ? `+${d}` : `${d}`
   }
 
-  async function handleAddPlayer() {
-    const name = newPlayerName.trim()
-    if (!name) return
-    setAddingPlayerLoading(true)
-    setAddPlayerError('')
-    try {
-      const player = await addPlayerAction(name)
-      setPlayerList(prev =>
-        [...prev, player].sort((a, b) => a.name.localeCompare(b.name))
-      )
-      setAddingPlayer(false)
-      setNewPlayerName('')
-    } catch (err) {
-      setAddPlayerError(err instanceof Error ? err.message : 'Failed to add player')
-    } finally {
-      setAddingPlayerLoading(false)
-    }
-  }
+  const activePlayers = allKnownPlayers.filter(p => activePlayerIds.has(p.id))
+  const availableToAdd = allKnownPlayers.filter(p => !activePlayerIds.has(p.id))
 
   return (
     <form action={submitRound} className="space-y-6">
@@ -137,13 +159,21 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
                 <th className="text-right text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2.5 w-28">
                   Score
                 </th>
-                <th className="text-right text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2.5 w-24">
+                <th className="text-right text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2.5 w-20">
                   +/- Par
                 </th>
+                <th className="w-8" />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {playerList.map(player => {
+              {activePlayers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-4 text-sm text-slate-400 text-center">
+                    No players added yet
+                  </td>
+                </tr>
+              )}
+              {activePlayers.map(player => {
                 const scoreStr = scores[player.id] ?? ''
                 const d = calcDiff(scoreStr)
                 return (
@@ -174,46 +204,82 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
                     >
                       {formatDiff(d)}
                     </td>
+                    <td className="pr-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => removePlayer(player.id)}
+                        aria-label={`Remove ${player.name}`}
+                        className="text-slate-300 hover:text-red-400 transition-colors text-lg leading-none"
+                      >
+                        ×
+                      </button>
+                    </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
 
+          {/* Add player section */}
           {addingPlayer ? (
-            <div className="px-4 py-3 border-t border-slate-100 space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  autoFocus
-                  type="text"
-                  value={newPlayerName}
-                  onChange={e => setNewPlayerName(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') { e.preventDefault(); handleAddPlayer() }
-                    if (e.key === 'Escape') { setAddingPlayer(false); setNewPlayerName('') }
-                  }}
-                  placeholder="Player name"
-                  className="flex-1 border border-slate-200 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddPlayer}
-                  disabled={addingPlayerLoading || !newPlayerName.trim()}
-                  className="bg-green-700 text-white rounded px-3 py-1.5 text-sm font-medium hover:bg-green-800 disabled:opacity-50"
-                >
-                  {addingPlayerLoading ? 'Adding…' : 'Add'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setAddingPlayer(false); setNewPlayerName(''); setAddPlayerError('') }}
-                  className="text-slate-400 hover:text-slate-600 text-sm px-2 py-1.5"
-                >
-                  Cancel
-                </button>
-              </div>
-              {addPlayerError && (
-                <p role="alert" className="text-xs text-red-600">{addPlayerError}</p>
+            <div className="px-4 py-3 border-t border-slate-100 space-y-3">
+              {/* Existing players not on the card */}
+              {availableToAdd.length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-500 mb-2">Select an existing player:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {availableToAdd.map(player => (
+                      <button
+                        key={player.id}
+                        type="button"
+                        onClick={() => { addExistingPlayer(player); setAddingPlayer(false) }}
+                        className="px-3 py-1 text-sm border border-slate-200 rounded-full hover:border-green-600 hover:text-green-700 transition-colors"
+                      >
+                        {player.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
+
+              {/* New player input */}
+              <div>
+                {availableToAdd.length > 0 && (
+                  <p className="text-xs text-slate-500 mb-2">Or add a new player:</p>
+                )}
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus={availableToAdd.length === 0}
+                    type="text"
+                    value={newPlayerName}
+                    onChange={e => setNewPlayerName(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); handleAddNewPlayer() }
+                      if (e.key === 'Escape') { setAddingPlayer(false); setNewPlayerName(''); setAddPlayerError('') }
+                    }}
+                    placeholder="Player name"
+                    className="flex-1 border border-slate-200 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddNewPlayer}
+                    disabled={addingPlayerLoading || !newPlayerName.trim()}
+                    className="bg-green-700 text-white rounded px-3 py-1.5 text-sm font-medium hover:bg-green-800 disabled:opacity-50"
+                  >
+                    {addingPlayerLoading ? 'Adding…' : 'Add'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAddingPlayer(false); setNewPlayerName(''); setAddPlayerError('') }}
+                    className="text-slate-400 hover:text-slate-600 text-sm px-2 py-1.5"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {addPlayerError && (
+                  <p role="alert" className="text-xs text-red-600 mt-1">{addPlayerError}</p>
+                )}
+              </div>
             </div>
           ) : (
             <div className="px-4 py-3 border-t border-slate-100">
