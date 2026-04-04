@@ -5,7 +5,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addCourse } from '@/lib/db/courses'
 import { createRound } from '@/lib/db/rounds'
-import { Course } from '@/lib/types'
+import { addPlayer as addPlayerDb } from '@/lib/db/players'
+import { Course, Profile } from '@/lib/types'
 
 export async function submitRound(formData: FormData) {
   const supabase = await createClient()
@@ -57,4 +58,21 @@ export async function createCourse(
   }
   revalidatePath('/rounds/new')
   return course
+}
+
+export async function addPlayer(name: string): Promise<Profile> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  if (!name.trim()) throw new Error('Player name is required')
+
+  let player
+  try {
+    player = await addPlayerDb(name.trim(), user.id)
+  } catch {
+    throw new Error('Failed to add player. Please try again.')
+  }
+  revalidatePath('/rounds/new')
+  return player
 }
