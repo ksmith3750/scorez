@@ -56,7 +56,6 @@ export async function createCourse(
   } catch {
     throw new Error('Failed to create course. Please try again.')
   }
-  revalidatePath('/rounds/new')
   return course
 }
 
@@ -73,6 +72,5 @@ export async function addPlayer(name: string): Promise<Profile> {
   } catch {
     throw new Error('Failed to add player. Please try again.')
   }
-  revalidatePath('/rounds/new')
   return player
 }
