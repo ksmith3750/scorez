@@ -35,6 +35,15 @@ export async function updatePlayerName(userId: string, name: string): Promise<vo
   }
 }
 
+export async function updatePlayerNameById(playerId: string, name: string): Promise<void> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('players')
+    .update({ name: name.trim() })
+    .eq('id', playerId)
+  if (error) throw new Error(`updatePlayerNameById: ${error.message}`)
+}
+
 export async function addPlayer(name: string, createdBy: string): Promise<Profile> {
   const supabase = await createClient()
   const { data, error } = await supabase
