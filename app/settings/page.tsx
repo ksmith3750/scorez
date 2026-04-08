@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getPlayerByUserId } from '@/lib/db/players'
 import { redirect } from 'next/navigation'
-import { updateDisplayName } from '@/app/actions'
+import { SettingsForm } from '@/components/settings-form'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -20,31 +20,7 @@ export default async function SettingsPage() {
           <p className="text-sm text-slate-700">{user.email}</p>
         </div>
 
-        <form action={updateDisplayName} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-              Display Name
-            </label>
-            <p className="text-xs text-slate-400 mb-2">
-              This name appears on scorecards and the handicap leaderboard.
-            </p>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              defaultValue={player?.name ?? user.email ?? ''}
-              required
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
-              placeholder="Your name"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-green-700 text-white rounded-lg px-5 py-2 text-sm font-semibold hover:bg-green-800 transition-colors"
-          >
-            Save
-          </button>
-        </form>
+        <SettingsForm currentName={player?.name ?? user.email ?? ''} />
       </div>
     </div>
   )
