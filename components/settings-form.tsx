@@ -7,18 +7,10 @@ interface Props {
   currentName: string
 }
 
+const initialState = { error: undefined, success: undefined }
+
 export function SettingsForm({ currentName }: Props) {
-  const [state, action, pending] = useActionState(
-    async (_prev: { error?: string; success?: boolean }, formData: FormData) => {
-      try {
-        await updateDisplayName(formData)
-        return { success: true as const }
-      } catch (err) {
-        return { error: err instanceof Error ? err.message : 'Failed to save' }
-      }
-    },
-    { error: undefined, success: undefined } as { error?: string; success?: boolean }
-  )
+  const [state, action, pending] = useActionState(updateDisplayName, initialState)
 
   return (
     <form action={action} className="space-y-4">
