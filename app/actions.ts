@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addCourse } from '@/lib/db/courses'
 import { createRound } from '@/lib/db/rounds'
-import { addPlayer as addPlayerDb } from '@/lib/db/players'
+import { addPlayer as addPlayerDb, updatePlayerName } from '@/lib/db/players'
 import { Course, Profile } from '@/lib/types'
 
 export async function submitRound(formData: FormData) {
@@ -73,4 +73,16 @@ export async function addPlayer(name: string): Promise<Profile> {
     throw new Error('Failed to add player. Please try again.')
   }
   return player
+}
+
+export async function updateDisplayName(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const name = (formData.get('name') as string ?? '').trim()
+  if (!name) throw new Error('Display name is required')
+
+  await updatePlayerName(user.id, name)
+  revalidatePath('/settings')
 }

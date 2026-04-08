@@ -36,6 +36,7 @@ export function Nav() {
           <Link href="/" className={linkClass('/')}>Dashboard</Link>
           <Link href="/rounds/new" className={linkClass('/rounds/new')}>New Round</Link>
           <Link href="/rounds" className={linkClass('/rounds')}>History</Link>
+          <Link href="/settings" className={linkClass('/settings')}>Settings</Link>
           <button
             type="button"
             onClick={signOut}
