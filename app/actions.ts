@@ -7,9 +7,8 @@ import { addCourse } from '@/lib/db/courses'
 import { createRound } from '@/lib/db/rounds'
 import { addPlayer as addPlayerDb, updatePlayerName, updatePlayerNameById, getPlayerByUserId } from '@/lib/db/players'
 import { addRoundNote } from '@/lib/db/notes'
-import { RoundNote } from '@/lib/types'
+import type { RoundNote } from '@/lib/types'
 import { Course, Profile } from '@/lib/types'
-export type { RoundNote }
 
 export async function submitRound(formData: FormData) {
   const supabase = await createClient()
