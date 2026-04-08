@@ -11,6 +11,10 @@ export async function getRounds(): Promise<RoundWithScores[]> {
       scores:round_scores(
         id, round_id, player_id, score,
         player:players(id, name)
+      ),
+      notes:round_notes(
+        id, round_id, content, created_at,
+        author:players!round_notes_created_by_fkey(id, name)
       )
     `)
     .order('date', { ascending: false })
@@ -28,6 +32,10 @@ export async function getRound(id: string): Promise<RoundWithScores> {
       scores:round_scores(
         id, round_id, player_id, score,
         player:players(id, name)
+      ),
+      notes:round_notes(
+        id, round_id, content, created_at,
+        author:players!round_notes_created_by_fkey(id, name)
       )
     `)
     .eq('id', id)
