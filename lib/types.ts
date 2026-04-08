@@ -35,6 +35,15 @@ export interface RoundWithScores extends Round {
   scores: RoundScore[]
 }
 
+export interface RoundNote {
+  id: string
+  round_id: string
+  content: string
+  created_by: string
+  created_at: string
+  author?: Profile
+}
+
 export interface PlayerHandicap {
   player: Profile
   handicap: number | null   // null = no rounds this year

@@ -5,8 +5,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addCourse } from '@/lib/db/courses'
 import { createRound } from '@/lib/db/rounds'
-import { addPlayer as addPlayerDb, updatePlayerName, updatePlayerNameById } from '@/lib/db/players'
+import { addPlayer as addPlayerDb, updatePlayerName, updatePlayerNameById, getPlayerByUserId } from '@/lib/db/players'
+import { addRoundNote } from '@/lib/db/notes'
+import { RoundNote } from '@/lib/types'
 import { Course, Profile } from '@/lib/types'
+export type { RoundNote }
 
 export async function submitRound(formData: FormData) {
   const supabase = await createClient()
@@ -115,4 +118,27 @@ export async function updateDisplayName(
 
   revalidatePath('/settings')
   return { success: true }
+}
+
+export async function addNote(
+  roundId: string,
+  content: string
+): Promise<{ note?: RoundNote; error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not logged in' }
+
+  const trimmed = content.trim()
+  if (!trimmed) return { error: 'Note cannot be empty' }
+
+  // Look up the player record for the logged-in user
+  const player = await getPlayerByUserId(user.id)
+  if (!player) return { error: 'No player record found for your account' }
+
+  try {
+    const note = await addRoundNote(roundId, trimmed, player.id)
+    return { note }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to add note' }
+  }
 }
