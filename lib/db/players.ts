@@ -24,11 +24,15 @@ export async function getPlayerByUserId(userId: string): Promise<Profile | null>
 
 export async function updatePlayerName(userId: string, name: string): Promise<void> {
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('players')
     .update({ name: name.trim() })
     .eq('user_id', userId)
+    .select('id')
   if (error) throw new Error(`updatePlayerName: ${error.message}`)
+  if (!data || data.length === 0) {
+    throw new Error('Could not update — no player record linked to your account')
+  }
 }
 
 export async function addPlayer(name: string, createdBy: string): Promise<Profile> {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState, useEffect } from 'react'
 import { updateDisplayName } from '@/app/actions'
 
 interface Props {
@@ -10,7 +10,13 @@ interface Props {
 const initialState = { error: undefined, success: undefined }
 
 export function SettingsForm({ currentName }: Props) {
+  const [name, setName] = useState(currentName)
   const [state, action, pending] = useActionState(updateDisplayName, initialState)
+
+  // Keep input in sync after a successful server re-render
+  useEffect(() => {
+    setName(currentName)
+  }, [currentName])
 
   return (
     <form action={action} className="space-y-4">
@@ -25,7 +31,8 @@ export function SettingsForm({ currentName }: Props) {
           id="name"
           name="name"
           type="text"
-          defaultValue={currentName}
+          value={name}
+          onChange={e => setName(e.target.value)}
           required
           className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           placeholder="Your name"
