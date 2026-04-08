@@ -40,6 +40,15 @@ export function RoundsList({ rounds }: Props) {
                   </span>
                 ))}
             </div>
+            {round.notes.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {round.notes.map(n => (
+                  <p key={n.id} className="text-sm text-slate-500 italic">
+                    &ldquo;{n.content}&rdquo;
+                  </p>
+                ))}
+              </div>
+            )}
           </Link>
         </li>
       ))}

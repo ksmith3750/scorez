@@ -33,6 +33,7 @@ export interface RoundScore {
 
 export interface RoundWithScores extends Round {
   scores: RoundScore[]
+  notes: RoundNote[]
 }
 
 export interface RoundNote {
