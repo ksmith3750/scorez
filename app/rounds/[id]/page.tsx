@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { getRound } from '@/lib/db/rounds'
+import { getRoundNotes } from '@/lib/db/notes'
+import { RoundNotes } from '@/components/round-notes'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -15,7 +17,7 @@ function formatDate(date: string) {
 
 export default async function RoundDetailPage({ params }: Props) {
   const { id } = await params
-  const round = await getRound(id)
+  const [round, notes] = await Promise.all([getRound(id), getRoundNotes(id)])
 
   return (
     <div className="max-w-lg">
@@ -52,6 +54,8 @@ export default async function RoundDetailPage({ params }: Props) {
               })}
           </tbody>
         </table>
+
+        <RoundNotes roundId={id} initialNotes={notes} />
       </div>
     </div>
   )
