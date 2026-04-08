@@ -75,14 +75,23 @@ export async function addPlayer(name: string): Promise<Profile> {
   return player
 }
 
-export async function updateDisplayName(formData: FormData) {
+export async function updateDisplayName(
+  _prevState: { error?: string; success?: boolean },
+  formData: FormData
+): Promise<{ error?: string; success?: boolean }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) return { error: 'Not logged in' }
 
   const name = (formData.get('name') as string ?? '').trim()
-  if (!name) throw new Error('Display name is required')
+  if (!name) return { error: 'Display name is required' }
 
-  await updatePlayerName(user.id, name)
+  try {
+    await updatePlayerName(user.id, name)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to save' }
+  }
+
   revalidatePath('/settings')
+  return { success: true }
 }
