@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620" font-family="system-ui, -apple-system, sans-serif">
+  <!-- Browser chrome -->
+  <rect width="900" height="620" rx="10" fill="#e2e8f0"/>
+  <rect x="0" y="0" width="900" height="40" rx="10" fill="#cbd5e1"/>
+  <rect x="0" y="30" width="900" height="10" fill="#cbd5e1"/>
+  <circle cx="24" cy="20" r="6" fill="#f87171"/>
+  <circle cx="44" cy="20" r="6" fill="#fbbf24"/>
+  <circle cx="64" cy="20" r="6" fill="#4ade80"/>
+  <rect x="100" y="10" width="580" height="20" rx="10" fill="#f8fafc"/>
+  <text x="390" y="24" font-size="11" fill="#94a3b8" text-anchor="middle">scorez.example.com</text>
+
+  <!-- App background -->
+  <rect x="0" y="40" width="900" height="580" fill="#f8fafc"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="40" width="200" height="580" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="24" y="78" font-size="18" font-weight="700" fill="#166534">Scorez</text>
+  <text x="18" y="78" font-size="16">⛳</text>
+
+  <!-- Nav items -->
+  <rect x="12" y="90" width="176" height="34" rx="8" fill="#f0fdf4"/>
+  <text x="36" y="112" font-size="13" font-weight="600" fill="#166534">Dashboard</text>
+  <text x="18" y="112" font-size="13">🏠</text>
+
+  <text x="36" y="148" font-size="13" fill="#64748b">New Round</text>
+  <text x="18" y="148" font-size="13">+</text>
+
+  <text x="36" y="182" font-size="13" fill="#64748b">History</text>
+  <text x="18" y="182" font-size="13">📋</text>
+
+  <text x="36" y="216" font-size="13" fill="#64748b">Handicaps</text>
+  <text x="18" y="216" font-size="13">🏆</text>
+
+  <text x="36" y="250" font-size="13" fill="#64748b">Settings</text>
+  <text x="18" y="250" font-size="13">⚙️</text>
+
+  <!-- Main content -->
+  <!-- Recent Rounds heading -->
+  <text x="228" y="80" font-size="20" font-weight="700" fill="#0f172a">Recent Rounds</text>
+
+  <!-- Round card 1 -->
+  <rect x="220" y="92" width="660" height="110" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="240" y="120" font-size="14" font-weight="600" fill="#1e293b">Pebble Beach Golf Links</text>
+  <text x="820" y="120" font-size="12" fill="#94a3b8" text-anchor="end">Apr 14, 2026</text>
+  <text x="240" y="140" font-size="12" fill="#64748b">18 holes · Par 72</text>
+  <!-- Scores -->
+  <text x="240" y="165" font-size="13" fill="#475569">Pete</text>
+  <text x="278" y="165" font-size="13" font-weight="700" fill="#1e293b">78</text>
+  <text x="310" y="165" font-size="13" fill="#475569">Joe</text>
+  <text x="342" y="165" font-size="13" font-weight="700" fill="#1e293b">82</text>
+  <text x="374" y="165" font-size="13" fill="#475569">Jimmy</text>
+  <text x="420" y="165" font-size="13" font-weight="700" fill="#1e293b">91</text>
+  <text x="452" y="165" font-size="13" fill="#475569">Trevor</text>
+  <text x="502" y="165" font-size="13" font-weight="700" fill="#1e293b">85</text>
+  <!-- Note -->
+  <text x="240" y="188" font-size="12" fill="#94a3b8" font-style="italic">"Great day on the course, Pete's birdie on 17 was a highlight!"</text>
+
+  <!-- Round card 2 -->
+  <rect x="220" y="214" width="660" height="96" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="240" y="242" font-size="14" font-weight="600" fill="#1e293b">Augusta National Golf Club</text>
+  <text x="820" y="242" font-size="12" fill="#94a3b8" text-anchor="end">Apr 7, 2026</text>
+  <text x="240" y="262" font-size="12" fill="#64748b">18 holes · Par 72</text>
+  <text x="240" y="287" font-size="13" fill="#475569">Pete</text>
+  <text x="278" y="287" font-size="13" font-weight="700" fill="#1e293b">81</text>
+  <text x="310" y="287" font-size="13" fill="#475569">Joe</text>
+  <text x="342" y="287" font-size="13" font-weight="700" fill="#1e293b">79</text>
+  <text x="374" y="287" font-size="13" fill="#475569">Jimmy</text>
+  <text x="420" y="287" font-size="13" font-weight="700" fill="#1e293b">88</text>
+  <text x="452" y="287" font-size="13" fill="#475569">Trevor</text>
+  <text x="502" y="287" font-size="13" font-weight="700" fill="#1e293b">83</text>
+
+  <!-- Round card 3 -->
+  <rect x="220" y="322" width="660" height="96" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="240" y="350" font-size="14" font-weight="600" fill="#1e293b">St Andrews Links</text>
+  <text x="820" y="350" font-size="12" fill="#94a3b8" text-anchor="end">Mar 29, 2026</text>
+  <text x="240" y="370" font-size="12" fill="#64748b">9 holes · Par 36</text>
+  <text x="240" y="395" font-size="13" fill="#475569">Pete</text>
+  <text x="278" y="395" font-size="13" font-weight="700" fill="#1e293b">40</text>
+  <text x="310" y="395" font-size="13" fill="#475569">Joe</text>
+  <text x="342" y="395" font-size="13" font-weight="700" fill="#1e293b">38</text>
+  <text x="374" y="395" font-size="13" fill="#475569">Trevor</text>
+  <text x="424" y="395" font-size="13" font-weight="700" fill="#1e293b">42</text>
+
+  <!-- Handicap leaderboard -->
+  <text x="228" y="450" font-size="16" font-weight="700" fill="#0f172a">Handicaps (2026)</text>
+  <rect x="220" y="460" width="660" height="130" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Table header -->
+  <rect x="220" y="460" width="660" height="32" rx="12" fill="#f8fafc"/>
+  <rect x="220" y="480" width="660" height="12" fill="#f8fafc"/>
+  <text x="248" y="481" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em">PLAYER</text>
+  <text x="560" y="481" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em" text-anchor="middle">ROUNDS</text>
+  <text x="760" y="481" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em" text-anchor="end">AVG +/- PAR</text>
+
+  <!-- Row 1 -->
+  <line x1="220" y1="492" x2="880" y2="492" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="248" y="514" font-size="13" fill="#1e293b">Joe</text>
+  <text x="560" y="514" font-size="13" fill="#475569" text-anchor="middle">3</text>
+  <text x="760" y="514" font-size="13" font-weight="600" fill="#15803d" text-anchor="end">+7.0</text>
+
+  <!-- Row 2 -->
+  <line x1="220" y1="524" x2="880" y2="524" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="248" y="546" font-size="13" fill="#1e293b">Pete</text>
+  <text x="560" y="546" font-size="13" fill="#475569" text-anchor="middle">3</text>
+  <text x="760" y="546" font-size="13" font-weight="600" fill="#475569" text-anchor="end">+8.3</text>
+
+  <!-- Row 3 -->
+  <line x1="220" y1="556" x2="880" y2="556" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="248" y="578" font-size="13" fill="#1e293b">Trevor</text>
+  <text x="560" y="578" font-size="13" fill="#475569" text-anchor="middle">3</text>
+  <text x="760" y="578" font-size="13" font-weight="600" fill="#475569" text-anchor="end">+12.3</text>
+
+  <!-- Row 4 -->
+  <line x1="220" y1="588" x2="880" y2="588" stroke="#f1f5f9" stroke-width="1"/>
+  <!-- (Jimmy's row cut off below visible area — intentional crop effect) -->
+</svg>
