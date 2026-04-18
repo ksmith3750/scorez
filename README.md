@@ -4,6 +4,8 @@ A private web app for tracking golf scores and handicaps for a group of friends.
 
 **Stack:** Next.js App Router · Supabase (PostgreSQL + Auth) · Tailwind CSS · Vercel or Render
 
+<img src="public/screenshot.svg" alt="Scorez dashboard showing recent rounds and handicap leaderboard" width="100%">
+
 ---
 
 ## Local Development
@@ -32,21 +34,9 @@ cp .env.local.example .env.local
 Edit `.env.local`:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-ANTHROPIC_API_KEY=your-anthropic-api-key   # optional — enables scorecard photo upload
-```
-
-> If `ANTHROPIC_API_KEY` is not set, the scorecard upload section on the New Round page is shown as disabled.
-
-### 4. Add users
-
-Invite users via **Supabase Dashboard → Authentication → Users → Invite user**. They will receive an email to set their password. Once logged in they can set a display name in **Settings**.
-
-### 5. Run the dev server
-```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+ANTHROPIC_API_KEY=your-anthropic-api-key   # optional — enables scorecard photo upload
 ```
 
 Both values are in your Supabase dashboard under **Settings → Data API**.
@@ -54,16 +44,20 @@ Both values are in your Supabase dashboard under **Settings → Data API**.
 - **Project URL** format: `https://your-project-id.supabase.co`
 - **Anon key**: the publishable/anon key (not the secret key)
 
+> If `ANTHROPIC_API_KEY` is not set, the scorecard upload section on the New Round page is shown as disabled.
+
 ### 3. Run database migrations
 
 In the Supabase dashboard, go to **SQL Editor** and run each migration file in order:
 
 1. `supabase/migrations/20260403000000_initial.sql`
 2. `supabase/migrations/20260404000001_add_players_table.sql`
+3. `supabase/migrations/20260408000001_players_update_policy.sql`
+4. `supabase/migrations/20260408000003_round_notes.sql`
 
 ### 4. Create your first user
 
-In the Supabase dashboard, go to **Authentication → Users → Add user → Create new user** and enter an email and password. Use those credentials to log in to the app.
+In the Supabase dashboard, go to **Authentication → Users → Invite user** and enter an email. They will receive a link to set their password. Once logged in they can set a display name in **Settings**.
 
 ### 5. Start the dev server
 
@@ -85,9 +79,7 @@ Open [http://localhost:3000](http://localhost:3000).
    - `ANTHROPIC_API_KEY` (optional)
 4. Deploy — Vercel detects Next.js automatically
 
-### Supabase CORS (Vercel)
-
-In Supabase → **Project Settings → API**, add your Vercel domain (e.g. `https://scorez.vercel.app`) to the **Allowed origins** list.
+In Supabase → **Authentication → URL Configuration**, set **Site URL** and add a **Redirect URL** pointing to your Vercel deployment URL (e.g. `https://scorez.vercel.app`).
 
 ---
 
@@ -103,7 +95,9 @@ A `render.yaml` is included. To deploy:
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `ANTHROPIC_API_KEY` (optional)
 
-The app runs on the free tier (spins down after inactivity).
+In Supabase → **Authentication → URL Configuration**, set **Site URL** and add a **Redirect URL** pointing to your Render deployment URL (e.g. `https://scorez.onrender.com`).
+
+> **Note:** Render's free tier spins down services after inactivity — the first request after idle may be slow.
 
 ---
 
@@ -133,84 +127,3 @@ On the **New Round** page, drag and drop or browse to a JPEG, PNG, or WebP photo
 The form is pre-filled with the extracted data. Player names are fuzzy-matched against existing players so known names map automatically. Review the pre-filled data before saving.
 
 This feature is disabled when `ANTHROPIC_API_KEY` is not configured.
-
-## Deploying to Vercel
-
-### 1. Push to GitHub
-
-Make sure your code is pushed to a GitHub repository.
-
-### 2. Import to Vercel
-
-1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
-2. Click **Add New Project** → select your repository
-3. Vercel auto-detects Next.js — no build settings changes needed
-4. Click **Deploy** (the first deploy may fail until env vars are added — that's expected)
-
-### 3. Add environment variables
-
-In your Vercel project, go to **Settings → Environment Variables** and add:
-
-| Name | Value |
-|------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your Supabase anon/publishable key |
-
-Both values come from Supabase → **Settings → Data API**.
-
-### 4. Redeploy
-
-After adding env vars, go to **Deployments** and click **Redeploy**, or push a new commit.
-
-### 5. Update Supabase auth settings
-
-In Supabase → **Authentication → URL Configuration**:
-
-- Set **Site URL** to your Vercel deployment URL (e.g. `https://your-app.vercel.app`)
-- Add the same URL to **Redirect URLs**
-
----
-
-## Deploying to Render
-
-### 1. Push to GitHub
-
-Make sure your code is pushed to a GitHub repository.
-
-### 2. Create a Web Service on Render
-
-1. Go to [render.com](https://render.com) and sign in with GitHub
-2. Click **New → Web Service** → select your repository
-3. Render will detect `render.yaml` automatically — build and start commands are pre-configured
-
-### 3. Add environment variables
-
-In your Render service, go to **Environment** and add:
-
-| Key | Value |
-|-----|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your Supabase anon/publishable key |
-
-Both values come from Supabase → **Settings → Data API**.
-
-### 4. Deploy
-
-Click **Create Web Service**. Render will build and deploy automatically. Subsequent pushes to `main` trigger automatic redeploys.
-
-### 5. Update Supabase auth settings
-
-In Supabase → **Authentication → URL Configuration**:
-
-- Set **Site URL** to your Render deployment URL (e.g. `https://scorez.onrender.com`)
-- Add the same URL to **Redirect URLs**
-
-> **Note:** Render's free tier spins down services after inactivity — the first request after idle may be slow. Upgrade to a paid instance type to avoid this.
-
----
-
-## Running Tests
-
-```bash
-npm test
-```
