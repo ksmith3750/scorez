@@ -9,9 +9,10 @@ import type { ParsedScorecard } from '@/app/api/parse-scorecard/route'
 interface Props {
   courses: Course[]
   players: Profile[]
+  canUpload: boolean
 }
 
-export function NewRoundPageClient({ courses, players }: Props) {
+export function NewRoundPageClient({ courses, players, canUpload }: Props) {
   const [prefill, setPrefill] = useState<Prefill | undefined>(undefined)
 
   function handleParsed(data: ParsedScorecard) {
@@ -26,7 +27,7 @@ export function NewRoundPageClient({ courses, players }: Props) {
 
   return (
     <>
-      <ScorecardUploader onParsed={handleParsed} />
+      <ScorecardUploader onParsed={handleParsed} disabled={!canUpload} />
       {prefill && (
         <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
           Scorecard parsed — review and save below.

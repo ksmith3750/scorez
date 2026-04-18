@@ -5,9 +5,10 @@ import type { ParsedScorecard } from '@/app/api/parse-scorecard/route'
 
 interface Props {
   onParsed: (data: ParsedScorecard) => void
+  disabled?: boolean
 }
 
-export function ScorecardUploader({ onParsed }: Props) {
+export function ScorecardUploader({ onParsed, disabled }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -41,6 +42,7 @@ export function ScorecardUploader({ onParsed }: Props) {
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
+    if (disabled) return
     setDragging(false)
     const file = e.dataTransfer.files?.[0]
     if (file) handleFile(file)
@@ -49,11 +51,15 @@ export function ScorecardUploader({ onParsed }: Props) {
   return (
     <div className="mb-6">
       <div
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
+        onDragOver={e => { e.preventDefault(); if (!disabled) setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl px-6 py-8 text-center transition-colors ${
-          dragging ? 'border-green-500 bg-green-50' : 'border-slate-200 bg-slate-50'
+          disabled
+            ? 'border-slate-200 bg-slate-50 opacity-50 cursor-not-allowed'
+            : dragging
+            ? 'border-green-500 bg-green-50'
+            : 'border-slate-200 bg-slate-50'
         }`}
       >
         <input
@@ -62,6 +68,7 @@ export function ScorecardUploader({ onParsed }: Props) {
           accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={handleChange}
+          disabled={disabled}
         />
         {loading ? (
           <div className="space-y-2">
@@ -72,15 +79,24 @@ export function ScorecardUploader({ onParsed }: Props) {
           <div className="space-y-2">
             <p className="text-2xl">📷</p>
             <p className="text-sm text-slate-600 font-medium">Upload a scorecard photo</p>
-            <p className="text-xs text-slate-400">Drag and drop, or</p>
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              className="text-sm text-green-700 font-medium hover:underline focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none rounded"
-            >
-              browse to select
-            </button>
-            <p className="text-xs text-slate-400">JPEG, PNG or WebP</p>
+            {disabled ? (
+              <p className="text-xs text-slate-400">
+                Scorecard scanning is not configured — set{' '}
+                <code className="font-mono">ANTHROPIC_API_KEY</code> to enable.
+              </p>
+            ) : (
+              <>
+                <p className="text-xs text-slate-400">Drag and drop, or</p>
+                <button
+                  type="button"
+                  onClick={() => inputRef.current?.click()}
+                  className="text-sm text-green-700 font-medium hover:underline focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:outline-none rounded"
+                >
+                  browse to select
+                </button>
+                <p className="text-xs text-slate-400">JPEG, PNG or WebP</p>
+              </>
+            )}
           </div>
         )}
       </div>
