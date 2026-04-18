@@ -1,56 +1,29 @@
 # Scorez
 
-A private golf scoring web app for a fixed group of friends. Record rounds, track history, and see handicaps calculated automatically from your rounds this calendar year.
+A private web app for tracking golf scores and handicaps for a group of friends. Records rounds, shows history, and calculates year-based handicaps (average of score minus par across all rounds in the current calendar year).
 
-![Scorez dashboard showing recent rounds and handicap leaderboard](public/screenshot.svg)
-
----
-
-## Features
-
-- **Record rounds** — pick a course, set holes (9 or 18) and par, enter scores for each player
-- **Scorecard photo upload** — take a photo of a paper scorecard and let AI parse it into a new round automatically (requires an Anthropic API key)
-- **Live +/- par** — scores show your position relative to par as you type
-- **Player management** — add new players or select existing ones per round; no separate admin step required
-- **Course management** — search from a pre-populated list or add a new course inline
-- **Round notes** — add free-text notes to any round; visible on the dashboard and history
-- **Handicap leaderboard** — average score-minus-par across all rounds in the current calendar year, updated automatically
-- **Display names** — set a friendly name in Settings or edit any player's name inline from the leaderboard
-- **Login required** — email/password auth via Supabase; only invited users can access the app
+**Stack:** Next.js App Router · Supabase (PostgreSQL + Auth) · Tailwind CSS · Vercel or Render
 
 ---
 
-## Tech stack
+## Local Development
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js (App Router) |
-| Database & Auth | Supabase (PostgreSQL + RLS) |
-| Styling | Tailwind CSS v4 |
-| AI parsing | Anthropic Claude (vision) |
-| Deployment | Vercel or Render |
+### Prerequisites
 
----
-
-## Local development
+- Node.js 18+
+- A [Supabase](https://supabase.com) project (free tier is fine)
 
 ### 1. Clone and install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/your-username/scorez.git
 cd scorez
 npm install
 ```
 
-### 2. Set up Supabase
+### 2. Set up environment variables
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Go to **Project Settings → Data API** and copy:
-   - **Project URL** (e.g. `https://xxxx.supabase.co`)
-   - **anon / public key**
-3. Run the migrations in order from `supabase/migrations/` using the Supabase SQL editor
-
-### 3. Configure environment variables
+Copy the example file and fill in your Supabase credentials:
 
 ```bash
 cp .env.local.example .env.local
@@ -71,6 +44,28 @@ ANTHROPIC_API_KEY=your-anthropic-api-key   # optional — enables scorecard phot
 Invite users via **Supabase Dashboard → Authentication → Users → Invite user**. They will receive an email to set their password. Once logged in they can set a display name in **Settings**.
 
 ### 5. Run the dev server
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Both values are in your Supabase dashboard under **Settings → Data API**.
+
+- **Project URL** format: `https://your-project-id.supabase.co`
+- **Anon key**: the publishable/anon key (not the secret key)
+
+### 3. Run database migrations
+
+In the Supabase dashboard, go to **SQL Editor** and run each migration file in order:
+
+1. `supabase/migrations/20260403000000_initial.sql`
+2. `supabase/migrations/20260404000001_add_players_table.sql`
+
+### 4. Create your first user
+
+In the Supabase dashboard, go to **Authentication → Users → Add user → Create new user** and enter an email and password. Use those credentials to log in to the app.
+
+### 5. Start the dev server
 
 ```bash
 npm run dev
@@ -138,3 +133,84 @@ On the **New Round** page, drag and drop or browse to a JPEG, PNG, or WebP photo
 The form is pre-filled with the extracted data. Player names are fuzzy-matched against existing players so known names map automatically. Review the pre-filled data before saving.
 
 This feature is disabled when `ANTHROPIC_API_KEY` is not configured.
+
+## Deploying to Vercel
+
+### 1. Push to GitHub
+
+Make sure your code is pushed to a GitHub repository.
+
+### 2. Import to Vercel
+
+1. Go to [vercel.com](https://vercel.com) and sign in with GitHub
+2. Click **Add New Project** → select your repository
+3. Vercel auto-detects Next.js — no build settings changes needed
+4. Click **Deploy** (the first deploy may fail until env vars are added — that's expected)
+
+### 3. Add environment variables
+
+In your Vercel project, go to **Settings → Environment Variables** and add:
+
+| Name | Value |
+|------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your Supabase anon/publishable key |
+
+Both values come from Supabase → **Settings → Data API**.
+
+### 4. Redeploy
+
+After adding env vars, go to **Deployments** and click **Redeploy**, or push a new commit.
+
+### 5. Update Supabase auth settings
+
+In Supabase → **Authentication → URL Configuration**:
+
+- Set **Site URL** to your Vercel deployment URL (e.g. `https://your-app.vercel.app`)
+- Add the same URL to **Redirect URLs**
+
+---
+
+## Deploying to Render
+
+### 1. Push to GitHub
+
+Make sure your code is pushed to a GitHub repository.
+
+### 2. Create a Web Service on Render
+
+1. Go to [render.com](https://render.com) and sign in with GitHub
+2. Click **New → Web Service** → select your repository
+3. Render will detect `render.yaml` automatically — build and start commands are pre-configured
+
+### 3. Add environment variables
+
+In your Render service, go to **Environment** and add:
+
+| Key | Value |
+|-----|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-id.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your Supabase anon/publishable key |
+
+Both values come from Supabase → **Settings → Data API**.
+
+### 4. Deploy
+
+Click **Create Web Service**. Render will build and deploy automatically. Subsequent pushes to `main` trigger automatic redeploys.
+
+### 5. Update Supabase auth settings
+
+In Supabase → **Authentication → URL Configuration**:
+
+- Set **Site URL** to your Render deployment URL (e.g. `https://scorez.onrender.com`)
+- Add the same URL to **Redirect URLs**
+
+> **Note:** Render's free tier spins down services after inactivity — the first request after idle may be slow. Upgrade to a paid instance type to avoid this.
+
+---
+
+## Running Tests
+
+```bash
+npm test
+```
