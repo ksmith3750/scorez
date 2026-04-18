@@ -5,16 +5,40 @@ import { Course, Profile } from '@/lib/types'
 import { CourseSelector } from './course-selector'
 import { submitRound, addPlayer as addPlayerAction } from '@/app/actions'
 
+export interface Prefill {
+  courseName?: string
+  date?: string
+  holes?: 9 | 18
+  par?: number
+  scores?: { name: string; score: number }[]
+}
+
 interface Props {
   courses: Course[]
   players: Profile[]
+  prefill?: Prefill
 }
 
-export function NewRoundForm({ courses, players: initialPlayers }: Props) {
+function matchScores(players: Profile[], prefillScores?: { name: string; score: number }[]): Record<string, string> {
+  if (!prefillScores) return {}
+  const result: Record<string, string> = {}
+  for (const player of players) {
+    const match = prefillScores.find(s =>
+      s.name.toLowerCase().includes(player.name.toLowerCase()) ||
+      player.name.toLowerCase().includes(s.name.toLowerCase())
+    )
+    if (match) result[player.id] = String(match.score)
+  }
+  return result
+}
+
+export function NewRoundForm({ courses, players: initialPlayers, prefill }: Props) {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
-  const [holes, setHoles] = useState<9 | 18>(18)
-  const [par, setPar] = useState('')
-  const [scores, setScores] = useState<Record<string, string>>({})
+  const [holes, setHoles] = useState<9 | 18>(prefill?.holes ?? 18)
+  const [par, setPar] = useState(prefill?.par != null ? String(prefill.par) : '')
+  const [scores, setScores] = useState<Record<string, string>>(
+    matchScores(initialPlayers, prefill?.scores)
+  )
 
   // allKnownPlayers = every player we know about (DB + newly created this session)
   const [allKnownPlayers, setAllKnownPlayers] = useState<Profile[]>(initialPlayers)
@@ -102,6 +126,7 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
           initialCourses={courses}
           selectedCourse={selectedCourse}
           onSelect={handleCourseSelect}
+          initialSearch={prefill?.courseName ?? ''}
         />
       </div>
 
@@ -111,7 +136,7 @@ export function NewRoundForm({ courses, players: initialPlayers }: Props) {
           id="date"
           type="date"
           name="date"
-          defaultValue={new Date().toISOString().split('T')[0]}
+          defaultValue={prefill?.date ?? new Date().toISOString().split('T')[0]}
           className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           required
         />

@@ -8,11 +8,12 @@ interface Props {
   initialCourses: Course[]
   selectedCourse: Course | null
   onSelect: (course: Course | null) => void
+  initialSearch?: string
 }
 
-export function CourseSelector({ initialCourses, selectedCourse, onSelect }: Props) {
+export function CourseSelector({ initialCourses, selectedCourse, onSelect, initialSearch }: Props) {
   const [courses, setCourses] = useState(initialCourses)
-  const [search, setSearch] = useState(selectedCourse?.name ?? '')
+  const [search, setSearch] = useState(initialSearch ?? selectedCourse?.name ?? '')
   const [open, setOpen] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
