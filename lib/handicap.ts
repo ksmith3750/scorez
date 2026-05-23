@@ -21,7 +21,7 @@ export function calculateHandicaps(
     )
 
     if (playerScores.length === 0) {
-      return { player, handicap: null, roundCount: 0 }
+      return { player, handicap: null, avgScore: null, roundCount: 0 }
     }
 
     const total = playerScores.reduce(
@@ -30,7 +30,11 @@ export function calculateHandicaps(
     )
     const handicap = Math.round((total / playerScores.length) * 10) / 10
 
-    return { player, handicap, roundCount: playerScores.length }
+    const avgScore = Math.round(
+      playerScores.reduce((sum, s) => sum + s.score, 0) / playerScores.length
+    )
+
+    return { player, handicap, avgScore, roundCount: playerScores.length }
   })
 
   return result.sort((a, b) => {
