@@ -63,9 +63,13 @@ export function HandicapLeaderboard({ handicaps: initialHandicaps }: Props) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
-      <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+      <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
         {new Date().getFullYear()} Handicaps
       </h2>
+      <div className="flex justify-end gap-4 mb-1 pr-0.5">
+        <span className="text-xs text-slate-400 w-10 text-right">avg</span>
+        <span className="text-xs text-slate-400 w-10 text-right">hdcp</span>
+      </div>
       <ul className="divide-y divide-slate-100">
         {handicaps.map((entry, i) => (
           <li key={entry.player.id} className="py-2.5">
@@ -124,9 +128,14 @@ export function HandicapLeaderboard({ handicaps: initialHandicaps }: Props) {
                     <PencilIcon />
                   </button>
                 </div>
-                <span className={`text-sm font-bold shrink-0 ${entry.handicap !== null ? 'text-green-700' : 'text-slate-300'}`}>
-                  {formatHandicap(entry.handicap)}
-                </span>
+                <div className="flex items-center gap-4 shrink-0">
+                  <span className={`text-sm font-bold w-10 text-right ${entry.avgScore !== null ? 'text-slate-700' : 'text-slate-300'}`}>
+                    {entry.avgScore !== null ? entry.avgScore : '—'}
+                  </span>
+                  <span className={`text-sm font-bold w-10 text-right ${entry.handicap !== null ? 'text-green-700' : 'text-slate-300'}`}>
+                    {formatHandicap(entry.handicap)}
+                  </span>
+                </div>
               </div>
             )}
           </li>

@@ -48,5 +48,6 @@ export interface RoundNote {
 export interface PlayerHandicap {
   player: Profile
   handicap: number | null   // null = no rounds this year
+  avgScore: number | null   // null = no rounds this year; raw avg strokes, rounded
   roundCount: number
 }
