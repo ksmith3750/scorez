@@ -10,24 +10,30 @@ interface Props {
 }
 
 export function ExportButton({ rounds }: Props) {
-  const [exporting, setExporting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (rounds.length === 0) return null
 
   function handleExport() {
-    setExporting(true)
-    const wb = buildWorkbook(rounds)
-    writeFile(wb, 'scorez-rounds.xlsx')
-    setExporting(false)
+    setError(null)
+    try {
+      const wb = buildWorkbook(rounds)
+      writeFile(wb, 'scorez-rounds.xlsx')
+    } catch {
+      setError('Export failed. Please try again.')
+    }
   }
 
   return (
-    <button
-      onClick={handleExport}
-      disabled={exporting}
-      className="bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2 text-sm font-semibold hover:border-slate-300 hover:shadow-sm transition-all disabled:opacity-50"
-    >
-      {exporting ? 'Exporting…' : 'Export to Excel'}
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={handleExport}
+        className="bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2 text-sm font-semibold hover:border-slate-300 hover:shadow-sm transition-all"
+      >
+        Export to Excel
+      </button>
+      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    </div>
   )
 }
