@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { writeFile } from 'xlsx'
-import { buildWorkbook } from '@/lib/export'
 import { RoundWithScores } from '@/lib/types'
 
 interface Props {
@@ -14,9 +12,13 @@ export function ExportButton({ rounds }: Props) {
 
   if (rounds.length === 0) return null
 
-  function handleExport() {
+  async function handleExport() {
     setError(null)
     try {
+      const [{ buildWorkbook }, { writeFile }] = await Promise.all([
+        import('@/lib/export'),
+        import('xlsx'),
+      ])
       const wb = buildWorkbook(rounds)
       writeFile(wb, 'scorez-rounds.xlsx')
     } catch {

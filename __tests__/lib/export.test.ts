@@ -114,7 +114,7 @@ describe('buildWorkbook', () => {
     expect(kirkPebble).toEqual(['Apr 20, 2026', 'Pebble Beach', 18, 72, 'Kirk', 84, 12])
   })
 
-  it('falls back to "Unknown Course" and "Unknown Player" for missing relations', () => {
+  it('falls back to "Unknown Course" and "Player <id>" for missing relations', () => {
     const noRelations: RoundWithScores[] = [
       {
         id: 'r4', course_id: 'c1', date: '2026-01-01', holes: 18, par: 72,
@@ -128,6 +128,27 @@ describe('buildWorkbook', () => {
     const roundRows = utils.sheet_to_json<unknown[]>(wb.Sheets['Rounds'], { header: 1 })
     const scoreRows = utils.sheet_to_json<unknown[]>(wb.Sheets['Scores'], { header: 1 })
     expect(roundRows[1][1]).toBe('Unknown Course')
-    expect(scoreRows[1][4]).toBe('Unknown Player')
+    expect(roundRows[0][4]).toBe('Player p1')    // Rounds sheet header uses Player <id>
+    expect(scoreRows[1][4]).toBe('Unknown Player') // Scores sheet still uses player?.name fallback
+  })
+
+  it('Rounds sheet preserves separate columns for players with undefined player relation', () => {
+    const twoUnknownPlayers: RoundWithScores[] = [
+      {
+        id: 'r5', course_id: 'c1', date: '2026-06-01', holes: 18, par: 72,
+        created_by: 'p1', created_at: '',
+        course: { id: 'c1', name: 'Augusta', par_9: null, par_18: 72, created_by: 'p1', created_at: '' },
+        scores: [
+          { id: 's6', round_id: 'r5', player_id: 'p1', score: 80, player: undefined },
+          { id: 's7', round_id: 'r5', player_id: 'p2', score: 90, player: undefined },
+        ],
+        notes: [],
+      },
+    ]
+    const wb = buildWorkbook(twoUnknownPlayers)
+    const rows = utils.sheet_to_json<unknown[]>(wb.Sheets['Rounds'], { header: 1 })
+    // Should have two player columns, not one
+    expect(rows[0]).toEqual(['Date', 'Course', 'Holes', 'Par', 'Player p1', 'Player p2', 'Notes'])
+    expect(rows[1]).toEqual(['Jun 1, 2026', 'Augusta', 18, 72, 80, 90, ''])
   })
 })
