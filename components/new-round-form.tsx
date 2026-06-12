@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { Course, Profile } from '@/lib/types'
 import { CourseSelector } from './course-selector'
 import { submitRound, addPlayer as addPlayerAction } from '@/app/actions'
@@ -321,13 +322,23 @@ export function NewRoundForm({ courses, players: initialPlayers, prefill }: Prop
         <p className="text-xs text-slate-400 mt-2">Leave score blank for players who didn&apos;t play</p>
       </div>
 
-      <button
-        type="submit"
-        disabled={!selectedCourse}
-        className="bg-green-700 text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Save Round
-      </button>
+      <SubmitButton disabled={!selectedCourse} />
     </form>
+  )
+}
+
+// Lives in its own component so it can read the parent form's pending state via
+// useFormStatus. Disabling while the action is in flight stops a double-click
+// from submitting the round twice.
+export function SubmitButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={disabled || pending}
+      className="bg-green-700 text-white rounded-lg px-6 py-2.5 text-sm font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {pending ? 'Saving…' : 'Save Round'}
+    </button>
   )
 }
