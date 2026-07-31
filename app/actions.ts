@@ -121,7 +121,8 @@ export async function updateDisplayName(
 
 export async function updateScore(
   scoreId: string,
-  score: number
+  score: number,
+  roundId: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -139,6 +140,7 @@ export async function updateScore(
 
   revalidatePath('/')
   revalidatePath('/rounds')
+  revalidatePath(`/rounds/${roundId}`)
   return {}
 }
 

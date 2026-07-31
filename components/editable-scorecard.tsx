@@ -23,16 +23,21 @@ export function EditableScorecard({ scores, par }: Props) {
     setError(null)
   }
 
-  async function commitEdit(id: string, originalScore: number) {
+  async function commitEdit(id: string, originalScore: number, roundId: string) {
     const parsed = parseInt(draftValue, 10)
     setEditingId(null)
     setDraftValue('')
 
-    if (isNaN(parsed) || parsed < 1 || parsed > 200 || parsed === originalScore) return
+    if (isNaN(parsed) || parsed === originalScore) return
+
+    if (parsed < 1 || parsed > 200) {
+      setError('Score must be between 1 and 200')
+      return
+    }
 
     setLocalScores(prev => ({ ...prev, [id]: parsed }))
 
-    const result = await updateScore(id, parsed)
+    const result = await updateScore(id, parsed, roundId)
     if (result.error) {
       setLocalScores(prev => ({ ...prev, [id]: originalScore }))
       setError(result.error)
@@ -77,17 +82,17 @@ export function EditableScorecard({ scores, par }: Props) {
                       autoFocus
                       onChange={e => setDraftValue(e.target.value)}
                       onKeyDown={e => {
-                        if (e.key === 'Enter') commitEdit(s.id, currentScore)
-                        if (e.key === 'Escape') { setEditingId(null); setDraftValue('') }
+                        if (e.key === 'Enter') commitEdit(s.id, currentScore, s.round_id)
+                        if (e.key === 'Escape') { setEditingId(null); setDraftValue(''); setError(null) }
                       }}
-                      onBlur={() => commitEdit(s.id, currentScore)}
+                      onBlur={() => commitEdit(s.id, currentScore, s.round_id)}
                       className="w-16 text-right border border-slate-200 rounded px-2 py-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                     />
                   ) : (
                     <button
                       type="button"
                       onClick={() => startEdit(s.id, currentScore)}
-                      title="Click to edit"
+                      aria-label={`Edit score for ${s.player?.name}`}
                       className="tabular-nums hover:text-green-700 cursor-pointer"
                     >
                       {currentScore}
