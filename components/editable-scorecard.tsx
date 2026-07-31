@@ -28,7 +28,7 @@ export function EditableScorecard({ scores, par }: Props) {
     setEditingId(null)
     setDraftValue('')
 
-    if (isNaN(parsed) || parsed === originalScore) return
+    if (isNaN(parsed) || parsed < 1 || parsed > 200 || parsed === originalScore) return
 
     setLocalScores(prev => ({ ...prev, [id]: parsed }))
 
