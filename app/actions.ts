@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addCourse } from '@/lib/db/courses'
-import { createRound } from '@/lib/db/rounds'
+import { createRound, updateRoundScore } from '@/lib/db/rounds'
 import { addPlayer as addPlayerDb, updatePlayerName, updatePlayerNameById, getPlayerByUserId } from '@/lib/db/players'
 import { addRoundNote } from '@/lib/db/notes'
 import type { RoundNote } from '@/lib/types'
@@ -117,6 +117,29 @@ export async function updateDisplayName(
 
   revalidatePath('/settings')
   return { success: true }
+}
+
+export async function updateScore(
+  scoreId: string,
+  score: number
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not logged in' }
+
+  if (!Number.isInteger(score) || score < 1 || score > 200) {
+    return { error: 'Score must be a whole number between 1 and 200' }
+  }
+
+  try {
+    await updateRoundScore(scoreId, score)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to save score' }
+  }
+
+  revalidatePath('/')
+  revalidatePath('/rounds')
+  return {}
 }
 
 export async function addNote(

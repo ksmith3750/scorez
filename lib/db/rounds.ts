@@ -81,3 +81,12 @@ export async function createRound(
 
   return round.id
 }
+
+export async function updateRoundScore(scoreId: string, score: number): Promise<void> {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('round_scores')
+    .update({ score })
+    .eq('id', scoreId)
+  if (error) throw new Error(`updateRoundScore: ${error.message}`)
+}
