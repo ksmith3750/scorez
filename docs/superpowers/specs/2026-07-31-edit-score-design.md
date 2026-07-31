@@ -77,7 +77,7 @@ Behaviour:
 - Each score cell renders as a clickable span (with a subtle hover/cursor cue) in read mode, or a `<input type="number" min=1 max=200>` in edit mode.
 - Clicking a span sets `editingId` to that score's `id` and `draftValue` to its current score.
 - While editing, the +/- par column derives from `draftValue` (live); all other rows use their persisted score.
-- On Enter or blur: if `draftValue` is valid and changed, calls `updateScore`. On error, reverts `draftValue` and sets `error`. Always clears `editingId` after attempting save.
+- On Enter or blur: if `draftValue` is valid and changed, calls `updateScore`. The cell always exits edit mode after the attempt (whether success or failure). On error, the displayed value reverts to the original and `error` is set; the user must click the cell again to retry.
 - On Escape: clears `editingId` and `draftValue`, no network call.
 - Input styling matches existing inputs in `new-round-form.tsx`.
 
