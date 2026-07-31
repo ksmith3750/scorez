@@ -84,9 +84,11 @@ export async function createRound(
 
 export async function updateRoundScore(scoreId: string, score: number): Promise<void> {
   const supabase = await createClient()
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('round_scores')
     .update({ score })
     .eq('id', scoreId)
+    .select('id')
   if (error) throw new Error(`updateRoundScore: ${error.message}`)
+  if (!data || data.length === 0) throw new Error('updateRoundScore: score not found or update not permitted')
 }

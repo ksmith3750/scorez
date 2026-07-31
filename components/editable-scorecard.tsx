@@ -37,10 +37,15 @@ export function EditableScorecard({ scores, par }: Props) {
 
     setLocalScores(prev => ({ ...prev, [id]: parsed }))
 
-    const result = await updateScore(id, parsed, roundId)
-    if (result.error) {
+    try {
+      const result = await updateScore(id, parsed, roundId)
+      if (result.error) {
+        setLocalScores(prev => ({ ...prev, [id]: originalScore }))
+        setError(result.error)
+      }
+    } catch {
       setLocalScores(prev => ({ ...prev, [id]: originalScore }))
-      setError(result.error)
+      setError('Failed to save — please try again')
     }
   }
 
