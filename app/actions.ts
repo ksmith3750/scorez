@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { addCourse } from '@/lib/db/courses'
 import { createRound, updateRoundScore } from '@/lib/db/rounds'
 import { addPlayer as addPlayerDb, updatePlayerName, updatePlayerNameById, getPlayerByUserId } from '@/lib/db/players'
-import { addRoundNote } from '@/lib/db/notes'
+import { addRoundNote, deleteRoundNote } from '@/lib/db/notes'
 import type { RoundNote } from '@/lib/types'
 import { Course, Profile } from '@/lib/types'
 
@@ -165,4 +165,26 @@ export async function addNote(
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to add note' }
   }
+}
+
+export async function deleteNote(
+  noteId: string,
+  roundId: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not logged in' }
+
+  const player = await getPlayerByUserId(user.id)
+  if (!player) return { error: 'No player record found for your account' }
+
+  try {
+    await deleteRoundNote(noteId, player.id)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to delete note' }
+  }
+
+  revalidatePath('/rounds')
+  revalidatePath(`/rounds/${roundId}`)
+  return {}
 }
