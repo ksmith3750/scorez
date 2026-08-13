@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { RoundNote } from '@/lib/types'
-import { addNote } from '@/app/actions'
+import { addNote, deleteNote } from '@/app/actions'
 
 interface Props {
   roundId: string
   initialNotes: RoundNote[]
+  currentPlayerId?: string
 }
 
 function formatTime(ts: string) {
@@ -17,12 +18,14 @@ function formatTime(ts: string) {
   })
 }
 
-export function RoundNotes({ roundId, initialNotes }: Props) {
+export function RoundNotes({ roundId, initialNotes, currentPlayerId }: Props) {
   const [notes, setNotes] = useState<RoundNote[]>(initialNotes)
   const [text, setText] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [adding, setAdding] = useState(false)
+  const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   async function handleAdd() {
     const trimmed = text.trim()
@@ -42,6 +45,34 @@ export function RoundNotes({ roundId, initialNotes }: Props) {
     setAdding(false)
   }
 
+  async function handleDelete(note: RoundNote) {
+    const idx = notes.findIndex(n => n.id === note.id)
+    setDeleting(prev => new Set(prev).add(note.id))
+    setNotes(prev => prev.filter(n => n.id !== note.id))
+    setDeleteError(null)
+
+    try {
+      const result = await deleteNote(note.id, roundId)
+      if (result.error) {
+        setNotes(prev => {
+          const next = [...prev]
+          next.splice(idx, 0, note)
+          return next
+        })
+        setDeleteError(result.error)
+      }
+    } catch {
+      setNotes(prev => {
+        const next = [...prev]
+        next.splice(idx, 0, note)
+        return next
+      })
+      setDeleteError('Failed to delete — please try again')
+    } finally {
+      setDeleting(prev => { const s = new Set(prev); s.delete(note.id); return s })
+    }
+  }
+
   return (
     <div className="mt-6">
       <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Notes</h2>
@@ -54,7 +85,20 @@ export function RoundNotes({ roundId, initialNotes }: Props) {
         <ul className="space-y-3 mb-4">
           {notes.map(note => (
             <li key={note.id} className="bg-slate-50 border border-slate-100 rounded-lg px-4 py-3">
-              <p className="text-sm text-slate-800">{note.content}</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm text-slate-800">{note.content}</p>
+                {currentPlayerId && note.created_by === currentPlayerId && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(note)}
+                    disabled={deleting.has(note.id)}
+                    aria-label="Delete note"
+                    className="text-slate-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-50"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-slate-400 mt-1.5">
                 {note.author?.name ?? 'Unknown'} · {formatTime(note.created_at)}
               </p>
@@ -62,6 +106,8 @@ export function RoundNotes({ roundId, initialNotes }: Props) {
           ))}
         </ul>
       )}
+
+      {deleteError && <p role="alert" className="text-xs text-red-600 mb-3">{deleteError}</p>}
 
       {adding ? (
         <div className="space-y-2">

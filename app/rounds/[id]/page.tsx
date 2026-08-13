@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getRound } from '@/lib/db/rounds'
 import { getRoundNotes } from '@/lib/db/notes'
+import { getPlayerByUserId } from '@/lib/db/players'
+import { createClient } from '@/lib/supabase/server'
 import { RoundNotes } from '@/components/round-notes'
 import { EditableScorecard } from '@/components/editable-scorecard'
 
@@ -18,7 +20,13 @@ function formatDate(date: string) {
 
 export default async function RoundDetailPage({ params }: Props) {
   const { id } = await params
-  const [round, notes] = await Promise.all([getRound(id), getRoundNotes(id)])
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const [round, notes, currentPlayer] = await Promise.all([
+    getRound(id),
+    getRoundNotes(id),
+    user ? getPlayerByUserId(user.id) : Promise.resolve(null),
+  ])
 
   return (
     <div className="max-w-lg">
@@ -31,7 +39,7 @@ export default async function RoundDetailPage({ params }: Props) {
           {formatDate(round.date)} · {round.holes} holes · Par {round.par}
         </p>
         <EditableScorecard scores={round.scores} par={round.par} />
-        <RoundNotes roundId={id} initialNotes={notes} />
+        <RoundNotes roundId={id} initialNotes={notes} currentPlayerId={currentPlayer?.id} />
       </div>
     </div>
   )
